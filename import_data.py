@@ -74,30 +74,45 @@ data_agg = data_agg[data_agg.Comments.isnull()].reset_index(drop=True)
 data_agg.drop(columns=["Comments"], inplace=True)
 
 
-# data_agg = data_agg[-data_agg.Joint.str.contains("|".join(["R_PELVIS_ANG_curto","R_PELVIS_ANG_longo",\
-#                                                            "L_PELVIS_ANG_curto","L_PELVIS_ANG_longo",\
-#                                                            "RFT_PROG_ANG_curto","RFT_PROG_ANG_longo",\
-#                                                            "LFT_PROG_ANG_curto","LFT_PROG_ANG_longo",\
-#                                                            "LFT_PROG_ANG","RFT_PROG_ANG"]))].reset_index(drop=True)
+temp = data_agg[-data_agg.Class.str.contains("Normal")*data_agg.Joint.str.contains("FT_PROG_ANG")*data_agg.Axis.str.contains("Z")]
+data_agg.loc[temp.index,"Axis"] = "Y"
+
+# %%
+
+data_agg = data_agg[data_agg.Joint.str.contains("|".join(["LFT_PROG_ANG_curto","RFT_PROG_ANG_curto",\
+                                                          "LFT_PROG_ANG_longo","RFT_PROG_ANG_longo",\
+                                                            "LVFT_ANG","RVFT_ANG",\
+                                                            "LHIP_ANG","RHIP_ANG",\
+                                                            "LKNEE_ANG","RKNEE_ANG",\
+                                                            "L_PELVIS_ANG_curto","R_PELVIS_ANG_curto",\
+                                                            "L_PELVIS_ANG_longo","R_PELVIS_ANG_longo",\
+                                                            "LANKLE_MF_N","RANKLE_MF_N",\
+                                                            "LKNEE_MF_N","RKNEE_MF_N",\
+                                                            "LHIP_MF_N","RHIP_MF_N"]))].reset_index(drop=True)
     
-# data_agg.Joint.replace({"LHIP_ANG":"Hip",\
-#                         "LKNEE_ANG":"Knee",\
-#                         "LVFT_ANG":"Ankle",\
-#                         "RHIP_ANG":"Hip",\
-#                         "RKNEE_ANG":"Knee",\
-#                         "RVFT_ANG":"Ankle",\
-#                         "LHIP_MF_N":"Hip",\
-#                         "LKNEE_MF_N":"Knee",\
-#                         "LANKLE_MF_N":"Ankle",\
-#                         "RHIP_MF_N":"Hip",\
-#                         "RKNEE_MF_N":"Knee",\
-#                         "RANKLE_MF_N":"Ankle",\
-#                         "L_PELVIS_ANG":"Pelvis",\
-#                         "R_PELVIS_ANG":"Pelvis"},inplace=True)
+data_agg.Joint.replace({"LFT_PROG_ANG_curto":"Ankle",\
+                        "RFT_PROG_ANG_curto":"Ankle",\
+                        "LFT_PROG_ANG_longo":"Ankle",\
+                        "RFT_PROG_ANG_longo":"Ankle",\
+                        "LVFT_ANG":"Ankle",\
+                        "RVFT_ANG":"Ankle",\
+                        "LHIP_ANG":"Hip",\
+                        "RHIP_ANG":"Hip",\
+                        "LKNEE_ANG":"Knee",\
+                        "RKNEE_ANG":"Knee",\
+                        "L_PELVIS_ANG_curto":"Pelvis",\
+                        "R_PELVIS_ANG_curto":"Pelvis",\
+                        "L_PELVIS_ANG_longo":"Pelvis",\
+                        "R_PELVIS_ANG_longo":"Pelvis",\
+                        "LANKLE_MF_N":"Ankle",\
+                        "RANKLE_MF_N":"Ankle",\
+                        "LKNEE_MF_N":"Knee",\
+                        "RKNEE_MF_N":"Knee",\
+                        "LHIP_MF_N":"Hip",\
+                        "RHIP_MF_N":"Hip"},inplace=True)
     
 
-# data_agg.loc[data_agg[data_agg.Measurement.str.contains("Mean")].index,"Test"] = "Mean"   
-# data_agg.loc[data_agg[data_agg.Measurement.str.contains("Std Dev")].index,"Test"] = "STD"   
+
 
 temp = data_agg[data_agg.Measurement.str.contains("GAIT0")].Measurement.str.split("BAREFOOT_",expand=True)[1].str.split("_",expand=True)[0]
 data_agg.loc[temp.index,"Test"] = temp
@@ -119,11 +134,58 @@ data_agg = data_agg.astype(float)
 
 data_agg = data_agg.groupby(level=[0,1,2,3,4,5,6]).mean()
 
-data_agg.to_csv("dados_agregados.csv")
+data_agg.to_csv("dados_agregados_totais.csv")
 
+        
+# %%
+unique_leg_gaits = data_agg.groupby(level=[0,1,2]).size()
+
+valid_leg_gait_vars = pd.DataFrame([["Angle","Ankle","X"],["Angle","Ankle","Y"],\
+                                    ["Angle","Ankle","Z"],["Angle","Hip","X"],\
+                                    ["Angle","Hip","Y"],["Angle","Hip","Z"],\
+                                    ["Angle","Knee","X"],["Angle","Knee","Y"],\
+                                    ["Angle","Knee","Z"],["Angle","Pelvis","X"],\
+                                    ["Angle","Pelvis","Y"],["Angle","Pelvis","Z"],\
+                                    ["Moment","Ankle","X"],["Moment","Ankle","Y"],\
+                                    ["Moment","Ankle","Z"],["Moment","Hip","X"],\
+                                    ["Moment","Hip","Y"],["Moment","Hip","Z"],\
+                                    ["Moment","Knee","X"],["Moment","Knee","Y"],\
+                                    ["Moment","Knee","Z"]],\
+                                   columns=["Measure","Joint","Axis"])
+    
+data_agg_legs = [None]*unique_leg_gaits.shape[0]
+
+for i in range(0, unique_leg_gaits.size):
+    leg_gait_data = data_agg[(data_agg.index.get_level_values(0) == unique_leg_gaits.index[i][0])*\
+                             (data_agg.index.get_level_values(1) == unique_leg_gaits.index[i][1])*\
+                             (data_agg.index.get_level_values(2) == unique_leg_gaits.index[i][2])]
+    
+    if pd.merge(leg_gait_data.index.to_frame().iloc[:,[3,4,5]].\
+       reset_index(drop=True),valid_leg_gait_vars,\
+       how="inner").shape[0] == 21:
+        
+        data_agg_legs[i] = leg_gait_data
+        
+# %%
+        
+data_agg_legs = pd.concat(data_agg_legs)
+
+data_agg_legs.to_csv("dados_agregados_pernas.csv")             
 
 # %%
-means_by_joint_axis = data_agg.groupby(level=[2,3,4,5,6]).mean()
-means_by_joint_axis_normal = means_by_joint_axis[means_by_joint_axis.index.get_level_values(4)=="Normal"]
+
+# grafico das contagens por classe
+
+# %%                                                
+                        
 
 
+                                     
+# %%
+data_var_means = data_agg.groupby(level=[2,3,4,5,6]).mean()
+for i in range(0,data_var_means.shape[0]):
+    if data_var_means.index.get_level_values(4)[i] == "Normal":
+        plt.plot(data_var_means.iloc[i,:])
+        plt.xlabel("Cycle")
+        plt.title(" ".join(data_var_means.index[i][0:4]))
+        plt.show()
