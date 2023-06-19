@@ -16,10 +16,7 @@ for d in os.listdir("Dados normativos"):
     for f in os.listdir("Dados normativos/"+d):
         with open("Dados normativos/{}/{}".format(d,f), "r") as f:
             lines = f.readlines()
-            
-        # data = pd.DataFrame([lines[i].lstrip("\t").rstrip("\n").\
-        #        split("\t")[1:] for i in range(5,len(lines))]).transpose()
-            
+
         data = pd.DataFrame([lines[i].split()[1:] for i in range(5,len(lines))]).transpose()
 
         measurements = lines[0].lstrip("\t").rstrip("\n").split("\t")
@@ -77,15 +74,16 @@ data_agg.drop(columns=["Comments"], inplace=True)
 temp = data_agg[-data_agg.Class.str.contains("Normal")*data_agg.Joint.str.contains("FT_PROG_ANG")*data_agg.Axis.str.contains("Z")]
 data_agg.loc[temp.index,"Axis"] = "Y"
 
-# %%
 
 data_agg = data_agg[data_agg.Joint.str.contains("|".join(["LFT_PROG_ANG_curto","RFT_PROG_ANG_curto",\
                                                           "LFT_PROG_ANG_longo","RFT_PROG_ANG_longo",\
+                                                            "LFT_PROG_ANG","RFT_PROG_ANG",\
                                                             "LVFT_ANG","RVFT_ANG",\
                                                             "LHIP_ANG","RHIP_ANG",\
                                                             "LKNEE_ANG","RKNEE_ANG",\
                                                             "L_PELVIS_ANG_curto","R_PELVIS_ANG_curto",\
                                                             "L_PELVIS_ANG_longo","R_PELVIS_ANG_longo",\
+                                                            "L_PELVIS_ANG","R_PELVIS_ANG",\
                                                             "LANKLE_MF_N","RANKLE_MF_N",\
                                                             "LKNEE_MF_N","RKNEE_MF_N",\
                                                             "LHIP_MF_N","RHIP_MF_N"]))].reset_index(drop=True)
@@ -94,6 +92,8 @@ data_agg.Joint.replace({"LFT_PROG_ANG_curto":"Ankle",\
                         "RFT_PROG_ANG_curto":"Ankle",\
                         "LFT_PROG_ANG_longo":"Ankle",\
                         "RFT_PROG_ANG_longo":"Ankle",\
+                        "LFT_PROG_ANG":"Ankle",\
+                        "RFT_PROG_ANG":"Ankle",\
                         "LVFT_ANG":"Ankle",\
                         "RVFT_ANG":"Ankle",\
                         "LHIP_ANG":"Hip",\
@@ -104,6 +104,8 @@ data_agg.Joint.replace({"LFT_PROG_ANG_curto":"Ankle",\
                         "R_PELVIS_ANG_curto":"Pelvis",\
                         "L_PELVIS_ANG_longo":"Pelvis",\
                         "R_PELVIS_ANG_longo":"Pelvis",\
+                        "L_PELVIS_ANG":"Pelvis",\
+                        "R_PELVIS_ANG":"Pelvis",\
                         "LANKLE_MF_N":"Ankle",\
                         "RANKLE_MF_N":"Ankle",\
                         "LKNEE_MF_N":"Knee",\
@@ -137,7 +139,6 @@ data_agg = data_agg.groupby(level=[0,1,2,3,4,5,6]).mean()
 data_agg.to_csv("dados_agregados_totais.csv")
 
         
-# %%
 unique_leg_gaits = data_agg.groupby(level=[0,1,2]).size()
 
 valid_leg_gait_vars = pd.DataFrame([["Angle","Ankle","X"],["Angle","Ankle","Y"],\
@@ -166,11 +167,13 @@ for i in range(0, unique_leg_gaits.size):
         
         data_agg_legs[i] = leg_gait_data
         
-# %%
         
 data_agg_legs = pd.concat(data_agg_legs)
 
-data_agg_legs.to_csv("dados_agregados_pernas.csv")             
+data_agg_legs.to_csv("dados_agregados_pernas.csv")   
+
+
+data_agg_means = data_agg_legs.groupby(level=[2,3,4,5,6]).mean()          
 
 # %%
 
