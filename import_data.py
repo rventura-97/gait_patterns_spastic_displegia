@@ -126,8 +126,8 @@ temp = data_agg[data_agg.Measurement.str.contains("GAIT_")].Measurement.str.spli
 data_agg.loc[temp.index,"Test"] = temp
 data_agg.drop(columns=["Measurement"],inplace=True)
 
-# temp = data_agg[data_agg.Measure=="Moment"].weight
-# data_agg.loc[temp.index,data_agg.columns[0:101]] = data_agg.loc[temp.index,data_agg.columns[0:101]].astype(float).divide(temp*9.8,axis='index').values
+temp = data_agg[data_agg.Measure=="Moment"].weight
+data_agg.loc[temp.index,data_agg.columns[0:101]] = data_agg.loc[temp.index,data_agg.columns[0:101]].astype(float).divide(temp*9.8,axis='index').values
 data_agg.drop(columns=["weight"],inplace=True)
 del temp
 
@@ -172,15 +172,57 @@ data_agg_legs = pd.concat(data_agg_legs)
 
 data_agg_legs.to_csv("dados_agregados_pernas.csv")   
 
-
-data_agg_means = data_agg_legs.groupby(level=[2,3,4,5,6]).mean()          
+data_agg_means = data_agg_legs.groupby(level=[2,3,4,5,6]).mean()   
+data_agg_means.to_csv("dados_agregados_medias.csv")         
 
 # %%
 
 # grafico das contagens por classe
 
-# %%                                                
-                        
+# %%   
+plt.figure(dpi=300)
+                                             
+plot_data_cycles = data_agg_legs[(data_agg_legs.index.get_level_values(2)=="L")*\
+                                 (data_agg_legs.index.get_level_values(3)=="Angle")*\
+                                 (data_agg_legs.index.get_level_values(4)=="Ankle")*\
+                                 (data_agg_legs.index.get_level_values(5)=="X")*\
+                                 (data_agg_legs.index.get_level_values(6)=="Normal")]                        
+plot_data_mean = data_agg_means[(data_agg_means.index.get_level_values(0)=="L")*\
+                                 (data_agg_means.index.get_level_values(1)=="Angle")*\
+                                 (data_agg_means.index.get_level_values(2)=="Ankle")*\
+                                 (data_agg_means.index.get_level_values(3)=="X")*\
+                                 (data_agg_means.index.get_level_values(4)=="Normal")]
+
+    
+plt.plot(plot_data_cycles.values.transpose(),color="gray",alpha=0.2)
+plt.plot(plot_data_mean.values.transpose(),color="k",linestyle="dashed")
+plt.xlabel("Gait Cycle (%)")
+plt.ylabel("Degrees")
+plt.show()
+plt.savefig('filename.png')
+
+# %%   
+plt.figure(dpi=300)
+                                             
+plot_data_cycles = data_agg_legs[(data_agg_legs.index.get_level_values(2)=="L")*\
+                                 (data_agg_legs.index.get_level_values(3)=="Angle")*\
+                                 (data_agg_legs.index.get_level_values(4)=="Ankle")*\
+                                 (data_agg_legs.index.get_level_values(5)=="X")*\
+                                 (data_agg_legs.index.get_level_values(6)=="Crouch Gait")]                        
+plot_data_mean = data_agg_means[(data_agg_means.index.get_level_values(0)=="L")*\
+                                 (data_agg_means.index.get_level_values(1)=="Angle")*\
+                                 (data_agg_means.index.get_level_values(2)=="Ankle")*\
+                                 (data_agg_means.index.get_level_values(3)=="X")*\
+                                 (data_agg_means.index.get_level_values(4)=="Crouch Gait")]
+
+    
+plt.plot(plot_data_cycles.values.transpose(),color="gray",alpha=0.2)
+plt.plot(plot_data_mean.values.transpose(),color="k",linestyle="dashed")
+plt.xlabel("Gait Cycle (%)")
+plt.ylabel("Degrees")
+plt.show()
+plt.savefig('filename.png')
+
 
 
                                      
