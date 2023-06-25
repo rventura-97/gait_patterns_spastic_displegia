@@ -136,7 +136,29 @@ data_agg = data_agg.astype(float)
 
 data_agg = data_agg.groupby(level=[0,1,2,3,4,5,6]).mean()
 
+
+
+###########################################
+
+unique_measurements = data_agg.groupby(level=[3,4,5]).size()
+
+data_agg_norm = [None]*unique_measurements.shape[0]
+
+for i in range(0, unique_measurements.size):
+    measurement_data = data_agg[(data_agg.index.get_level_values(3) == unique_measurements.index[i][0])*\
+                                (data_agg.index.get_level_values(4) == unique_measurements.index[i][1])*\
+                                (data_agg.index.get_level_values(5) == unique_measurements.index[i][2])]
+        
+    measurement_data = (measurement_data-measurement_data.min().min())/(measurement_data.max().max()-measurement_data.min().min())
+        
+    data_agg_norm[i] = measurement_data
+    
+data_agg = pd.concat(data_agg_norm)
+del data_agg_norm
+
 data_agg.to_csv("dados_agregados_totais.csv")
+
+###########################################
 
         
 unique_leg_gaits = data_agg.groupby(level=[0,1,2]).size()
@@ -170,6 +192,7 @@ for i in range(0, unique_leg_gaits.size):
         
 data_agg_legs = pd.concat(data_agg_legs)
 
+
 data_agg_legs.to_csv("dados_agregados_pernas.csv")   
 
 data_agg_means = data_agg_legs.groupby(level=[2,3,4,5,6]).mean()   
@@ -180,26 +203,33 @@ data_agg_means.to_csv("dados_agregados_medias.csv")
 # grafico das contagens por classe
 
 # %%   
-plt.figure(dpi=300)
-                                             
-plot_data_cycles = data_agg_legs[(data_agg_legs.index.get_level_values(2)=="L")*\
-                                 (data_agg_legs.index.get_level_values(3)=="Angle")*\
-                                 (data_agg_legs.index.get_level_values(4)=="Ankle")*\
-                                 (data_agg_legs.index.get_level_values(5)=="X")*\
-                                 (data_agg_legs.index.get_level_values(6)=="Normal")]                        
-plot_data_mean = data_agg_means[(data_agg_means.index.get_level_values(0)=="L")*\
-                                 (data_agg_means.index.get_level_values(1)=="Angle")*\
-                                 (data_agg_means.index.get_level_values(2)=="Ankle")*\
-                                 (data_agg_means.index.get_level_values(3)=="X")*\
-                                 (data_agg_means.index.get_level_values(4)=="Normal")]
+plot_measurement = ["L","Angle","Ankle","X"]
+plot_classes = ["Apparent Equinus","Crouch Gait","Jump Gait","Normal","True Equinus"]
 
+
+for plot_class in plot_classes:
+    plt.figure(dpi=300)
+                                                 
+    plot_data_cycles = data_agg_legs[(data_agg_legs.index.get_level_values(2)==plot_measurement[0])*\
+                                     (data_agg_legs.index.get_level_values(3)==plot_measurement[1])*\
+                                     (data_agg_legs.index.get_level_values(4)==plot_measurement[2])*\
+                                     (data_agg_legs.index.get_level_values(5)==plot_measurement[3])*\
+                                     (data_agg_legs.index.get_level_values(6)==plot_class)]                        
+    plot_data_mean = data_agg_means[(data_agg_means.index.get_level_values(0)==plot_measurement[0])*\
+                                     (data_agg_means.index.get_level_values(1)==plot_measurement[1])*\
+                                     (data_agg_means.index.get_level_values(2)==plot_measurement[2])*\
+                                     (data_agg_means.index.get_level_values(3)==plot_measurement[3])*\
+                                     (data_agg_means.index.get_level_values(4)==plot_class)]
     
-plt.plot(plot_data_cycles.values.transpose(),color="gray",alpha=0.2)
-plt.plot(plot_data_mean.values.transpose(),color="k",linestyle="dashed")
-plt.xlabel("Gait Cycle (%)")
-plt.ylabel("Degrees")
-plt.show()
-plt.savefig('filename.png')
+        
+    plt.plot(plot_data_cycles.values.transpose(),color="gray",alpha=0.2)
+    plt.plot(plot_data_mean.values.transpose(),color="k",linestyle="dashed")
+    plt.xlabel("Gait Cycle (%)")
+    plt.title(plot_class)
+    #plt.ylabel("Degrees")
+    plt.show()
+    
+    #plt.savefig('filename.png')
 
 # %%   
 plt.figure(dpi=300)
