@@ -82,12 +82,19 @@ class custom_stack_ensemble:
 
 class custom_auto_encoder:
     def __init__(self):
-        self.models = []
+        self.autoencoders = []
+        self.encoders = []
+        self.base_models = []
+        self.stack_model = []
         self.models_measures = []
         
         
     def fit(self, X_train, X_valid, y_train, y_valid):
+        
         self.models_measures = X_train[0].index.to_frame().iloc[:,[3,4,5]].reset_index(drop=True)
+        
+        self.autoencoders = [[]] * self.models_measures.shape[0]
+        self.encoders = [[]] * self.models_measures.shape[0]
         
         for m in range(0, self.models_measures.shape[0]):
             X_train_m = np.array([X_train[i].iloc[m,:].values for i in range(0,len(X_train))])
@@ -130,17 +137,47 @@ class custom_auto_encoder:
             
             history = model.fit(X_train_m, X_train_m, epochs=200, batch_size=16, verbose=2, validation_data=(X_valid_m, X_valid_m))
             
-            plt.plot(history.history['loss'], label='train')
-            plt.plot(history.history['val_loss'], label='test')
-            plt.legend()
-            plt.show()
+            # plt.plot(history.history['loss'], label='train')
+            # plt.plot(history.history['val_loss'], label='test')
+            # plt.legend()
+            # plt.show()
             # define an encoder model (without the decoder)
-            encoder = Model(inputs=visible, outputs=bottleneck)
+            self.autoencoders[m] = model
+            self.encoders[m] = Model(inputs=visible, outputs=bottleneck)
 
             # save the encoder to file
-            encoder.save('encoder.h5')
+            #encoder.save('encoder.h5')
+        self.base_models = [SVC(probability=True, verbose=False) for _ in range(0, self.models_measures.shape[0])]    
+        base_models_preds = [[]] * self.models_measures.shape[0]
+        for m in range(0, self.models_measures.shape[0]):
+            X_train_m = np.array([X_train[i].iloc[m,:].values for i in range(0,len(X_train))])
+            X_train_m = self.encoders[m].predict(X_train_m)
+            self.base_models[m].fit(X_train_m, y_train)
+            base_models_preds[m] = self.base_models[m].predict_proba(X_train_m)
             
+        base_models_preds = np.column_stack(base_models_preds)
+        
+        self.stack_model = SVC(probability=True, verbose=False)
+        self.stack_model.fit(base_models_preds, y_train)
 
             
+    def predict(self, X):
         
+        base_models_preds = [[]] * self.models_measures.shape[0]
         
+        for m in range(0, self.models_measures.shape[0]):
+            X_m = np.array([X[i].iloc[m,:].values for i in range(0,len(X))])
+            X_m = self.encoders[m].predict(X_m)
+            base_models_preds[m] = self.base_models[m].predict_proba(X_m)
+            
+        base_models_preds = np.column_stack(base_models_preds)
+        y_pred = self.stack_model.predict(base_models_preds)
+            
+        return y_pred 
+        
+class custom_anomaly_classifier:
+    def __init__(self):
+        pass
+    
+    
+    

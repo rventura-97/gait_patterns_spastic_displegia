@@ -31,7 +31,11 @@ for i, (train_index, test_index) in enumerate(skf.split(np.zeros(len(sample_clas
     
     model = custom_auto_encoder()
     model.fit(X_train, X_test, y_train, y_test)
-
+    
+    y_pred = model.predict(X_test)
+    conf_mtx_disp = ConfusionMatrixDisplay(confusion_matrix(y_test, y_pred))
+    conf_mtx_disp.plot()
+    plt.show()
 
 
 
