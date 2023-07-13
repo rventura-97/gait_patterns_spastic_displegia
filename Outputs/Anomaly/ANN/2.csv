@@ -1,0 +1,57 @@
+,y_true,y_pred
+0,Normal,Normal
+1,Normal,Normal
+2,Normal,Normal
+3,Normal,Normal
+4,Normal,Normal
+5,Normal,Normal
+6,Normal,Normal
+7,Normal,Normal
+8,Normal,Normal
+9,Normal,Normal
+10,Normal,Apparent E
+11,Normal,Apparent E
+12,Normal,True Equin
+13,Normal,Normal
+14,Normal,Normal
+15,Normal,True Equin
+16,Normal,True Equin
+17,Normal,True Equin
+18,Normal,Normal
+19,Normal,Normal
+20,Normal,Normal
+21,Normal,Normal
+22,Normal,Normal
+23,Normal,Normal
+24,Normal,Normal
+25,Normal,Normal
+26,Normal,Normal
+27,Normal,Normal
+28,Normal,Normal
+29,Normal,Normal
+30,Normal,Normal
+31,Normal,Normal
+32,Normal,Normal
+33,Normal,Normal
+34,Crouch Gait,Crouch Gai
+35,Crouch Gait,Jump Gait
+36,Crouch Gait,Crouch Gai
+37,Crouch Gait,Crouch Gai
+38,Crouch Gait,Crouch Gai
+39,Jump Gait,Jump Gait
+40,Jump Gait,Jump Gait
+41,Jump Gait,Jump Gait
+42,Jump Gait,Jump Gait
+43,Jump Gait,Jump Gait
+44,Jump Gait,Jump Gait
+45,Apparent Equinus,Apparent E
+46,Apparent Equinus,Apparent E
+47,Apparent Equinus,Crouch Gai
+48,Apparent Equinus,Crouch Gai
+49,True Equinus,True Equin
+50,True Equinus,True Equin
+51,True Equinus,True Equin
+52,True Equinus,True Equin
+53,True Equinus,True Equin
+54,True Equinus,True Equin
+55,True Equinus,True Equin
