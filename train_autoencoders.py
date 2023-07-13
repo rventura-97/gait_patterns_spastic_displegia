@@ -44,7 +44,7 @@ for k in range(0,5):
         X_train_m = np.array([X_train[i].iloc[m,:].values for i in range(0,len(X_train))])
         X_test_m = np.array([X_test[i].iloc[m,:].values for i in range(0,len(X_test))])
         
-        ros = RandomOverSampler()
+        ros = RandomOverSampler(random_state=4797)
         X_train_m, y_train_m = ros.fit_resample(X_train_m, y_train)
         X_test_m, y_test_m = ros.fit_resample(X_test_m, y_test)
     
