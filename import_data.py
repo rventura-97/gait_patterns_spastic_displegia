@@ -198,17 +198,6 @@ data_agg_legs.to_csv("dados_agregados_pernas.csv")
 data_agg_means = data_agg_legs.groupby(level=[2,3,4,5,6]).mean()   
 data_agg_means.to_csv("dados_agregados_medias.csv")      
 
-# %%   
-sample_groups = data_agg_legs.groupby(level=[0,2,6])
-
-data_samples = [sample_groups.get_group(g) for g in sample_groups.groups]
-sample_classes = [data_samples[g].index.get_level_values(6)[0] for g in range(0,len(data_samples))]
-
-temp = pd.DataFrame.from_dict(sample_groups.groups.keys())
-
-
-
-
 
 # %% PLOTS
 
