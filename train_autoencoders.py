@@ -85,7 +85,7 @@ for k in range(0,5):
         model.save("Autoencoders/E_{}_{}_{}_{}.keras".format(autoencoders_vars.iloc[m,0],autoencoders_vars.iloc[m,1],autoencoders_vars.iloc[m,2],str(k+1)))
     
 
-# %% Train autoencoders for anomaly detection architecture
+# Train autoencoders for anomaly detection architecture
 train_test_splits = pd.concat(pd.read_excel("train_test_patients.xlsx", sheet_name=None)).reset_index(drop=True)
 
 data_agg_legs = pd.read_csv("dados_agregados_pernas.csv",\
