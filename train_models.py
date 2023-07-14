@@ -176,7 +176,7 @@ sample_patient_side = pd.DataFrame([[data_samples[g].index.get_level_values(0)[0
                                      for g in range(0,len(data_samples))],\
                                      columns=["Patient","Side"])        
   
-for algo in ["SVM"]:
+for algo in ["ANN","KNN","LR","SVM"]:
     for k in range(0,5):
         train_idxs = sample_patient_side.reset_index().merge(train_test_splits.iloc[train_test_splits.\
                      index[train_test_splits.iloc[:,3+k]=="TRAIN"],[0,1]],how="right")["index"].values
